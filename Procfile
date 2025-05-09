@@ -1,1 +1,1 @@
-web: gunicorn compass_app:app --bind 0.0.0.0:$PORT
+web: python compass_app.py
