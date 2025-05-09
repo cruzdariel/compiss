@@ -63,6 +63,7 @@ HTML = '''
         #labels-container {
             position: absolute; width: 100%; height: 100%;
             top:0; left:0; transform-origin:50% 50%; transition: transform 0.5s ease;
+            pointer-events: none;
         }
         .label { position: absolute; font-size: 1.5rem; font-weight: bold; color:#333; }
         .north { top: 1rem; left: 50%; transform: translateX(-50%); }
@@ -90,40 +91,62 @@ HTML = '''
     </div>
     <p id="info">Waiting for location...</p>
     <script>
-        function handleOrientation(e) {
-            let heading = e.webkitCompassHeading || (e.alpha !== null ? 360 - e.alpha : 0);
-            document.getElementById('labels-container').style.transform = `rotate(${-heading}deg)`;
+        let headingEnabled = false;
+        let currentHeading = 0;
+        let currentBearing = 0;
+
+        function updatePointer() {
+            const compass = document.getElementById('compass');
+            const rotation = headingEnabled ? currentBearing - currentHeading : currentBearing;
+            compass.style.transform = `rotate(${rotation}deg)`;
         }
+
+        function handleOrientation(e) {
+            const heading = e.webkitCompassHeading || (e.alpha !== null ? 360 - e.alpha : 0);
+            currentHeading = heading;
+            document.getElementById('labels-container').style.transform = `rotate(${-heading}deg)`;
+            updatePointer();
+        }
+
         const enableBtn = document.getElementById('enable-compass');
         if (window.DeviceOrientationEvent && DeviceOrientationEvent.requestPermission) {
             enableBtn.onclick = () => {
                 DeviceOrientationEvent.requestPermission()
-                .then(state => {
-                    if (state === 'granted') {
-                        window.addEventListener('deviceorientation', handleOrientation, true);
-                        enableBtn.style.display = 'none';
-                    } else alert('Compass access denied');
-                })
-                .catch(console.error);
+                    .then(state => {
+                        if (state === 'granted') {
+                            headingEnabled = true;
+                            window.addEventListener('deviceorientation', handleOrientation, true);
+                            enableBtn.style.display = 'none';
+                        } else {
+                            alert('Compass access denied');
+                        }
+                    })
+                    .catch(console.error);
             };
         } else {
-            // no permission API, assume available
+            headingEnabled = true;
             window.addEventListener('deviceorientation', handleOrientation, true);
             enableBtn.style.display = 'none';
         }
+
         // Geolocation for nearest restroom
         if (navigator.geolocation) {
             navigator.geolocation.watchPosition(pos => {
                 fetch('/update', {
-                    method:'POST', headers:{'Content-Type':'application/json'},
-                    body: JSON.stringify({lat:pos.coords.latitude, lon:pos.coords.longitude})
-                }).then(r=>r.json()).then(data=>{
-                    document.getElementById('compass').style.transform = `rotate(${data.bearing}deg)`;
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ lat: pos.coords.latitude, lon: pos.coords.longitude })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    currentBearing = data.bearing;
                     document.getElementById('info').innerText =
                         `The closest bathroom is ${data.name} (distance: ${data.distance_ft.toFixed(0)} ft)`;
+                    updatePointer();
                 });
-            }, err=>console.error(err), {enableHighAccuracy:true, maximumAge:0, timeout:5000});
-        } else document.getElementById('info').innerText='Geolocation not supported';
+            }, err => console.error(err), { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 });
+        } else {
+            document.getElementById('info').innerText = 'Geolocation not supported';
+        }
     </script>
     <footer>Compiss brought to you by Dariel Cruz Rodriguez for Polaris <a href="https://scavhunt.uchicago.edu">Scav 2025</a>!</footer>
 </body>
