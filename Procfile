@@ -1,0 +1,1 @@
+web: gunicorn compass_app:app
