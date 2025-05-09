@@ -51,26 +51,28 @@ HTML = '''
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Compiss</title>
+    <!-- Load Comic Sans MS as a webfont for all devices -->
+    <link href="https://fonts.cdnfonts.com/css/comic-sans-ms" rel="stylesheet">
     <style>
         body { font-family: 'Comic Sans MS', cursive, sans-serif; padding: 2rem; text-align: center; }
         header { font-size: 2.5rem; margin-bottom: 1rem; }
-        .compass-container { 
-            position: relative; 
-            width: 300px; height: 300px; 
+        .compass-container {
+            position: relative;
+            width: 300px; height: 300px;
             margin: 0 auto 1rem;
-            border: 4px solid #333; 
+            border: 4px solid #333;
             border-radius: 50%;
         }
-        #compass { 
-            width: 80%; height: 80%; 
+        #compass {
+            width: 80%; height: 80%;
             position: absolute; top: 10%; left: 10%;
             transform-origin: 50% 50%; transition: transform 0.5s ease;
         }
         .label { position: absolute; font-size: 1.5rem; font-weight: bold; }
-        .north { top: 0.5rem; left: 50%; transform: translateX(-50%); }
-        .south { bottom: 0.5rem; left: 50%; transform: translateX(-50%); }
-        .west  { left: 0.5rem; top: 50%; transform: translateY(-50%); }
-        .east  { right: 0.5rem; top: 50%; transform: translateY(-50%); }
+        .north { top: 1rem; left: 50%; transform: translateX(-50%); }
+        .south { bottom: 1rem; left: 50%; transform: translateX(-50%); }
+        .west  { left: 1rem; top: 50%; transform: translateY(-50%); }
+        .east  { right: 1rem; top: 50%; transform: translateY(-50%); }
         footer { margin-top: 1.5rem; font-size: 0.9rem; }
     </style>
 </head>
