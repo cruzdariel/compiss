@@ -34,6 +34,7 @@ def bearing(lat1, lon1, lat2, lon2):
 # --- Compute nearest restroom ---
 def get_nearest(lat, lon):
     lat, lon = float(lat), float(lon)
+    # compute distance in km then convert to feet
     df['distance_km'] = df.apply(lambda row: haversine(lat, lon, row['latitude'], row['longitude']), axis=1)
     df['distance_ft'] = df['distance_km'] * 1000 * 3.28084
     nearest = df.loc[df['distance_ft'].idxmin()]
@@ -53,8 +54,6 @@ HTML = '''
     <title>Compiss</title>
     <!-- Load Comic Sans MS as a webfont for all devices -->
     <link href="https://fonts.cdnfonts.com/css/comic-sans-ms" rel="stylesheet">
-    <link rel="apple-touch-icon" href="static/icon.png">
-    <link rel="icon" type="image/x-icon" href="/static/compass.png">
     <style>
         body { font-family: 'Comic Sans MS', cursive, sans-serif; padding: 2rem; text-align: center; }
         header { font-size: 2.5rem; margin-bottom: 1rem; }
@@ -64,31 +63,55 @@ HTML = '''
             margin: 0 auto 1rem;
             border: 4px solid #333;
             border-radius: 50%;
+            overflow: hidden;
         }
+        /* Labels wrapper to rotate based on device orientation */
+        #labels-container {
+            position: absolute;
+            width: 100%; height: 100%;
+            top: 0; left: 0;
+            transform-origin: 50% 50%;
+            pointer-events: none;
+        }
+        .label { position: absolute; font-size: 1.5rem; font-weight: bold; color: #333; }
+        .north { top: 1rem; left: 50%; transform: translateX(-50%); }
+        .south { bottom: 1rem; left: 50%; transform: translateX(-50%); }
+        .west  { left: 1rem; top: 50%; transform: translateY(-50%); }
+        .east  { right: 1rem; top: 50%; transform: translateY(-50%); }
         #compass {
             width: 80%; height: 80%;
             position: absolute; top: 10%; left: 10%;
             transform-origin: 50% 50%; transition: transform 0.5s ease;
         }
-        .label { position: absolute; font-size: 1.5rem; font-weight: bold; }
-        .north { top: 1rem; left: 50%; transform: translateX(-50%); }
-        .south { bottom: 1rem; left: 50%; transform: translateX(-50%); }
-        .west  { left: 1rem; top: 50%; transform: translateY(-50%); }
-        .east  { right: 1rem; top: 50%; transform: translateY(-50%); }
         footer { margin-top: 1.5rem; font-size: 0.9rem; }
     </style>
 </head>
 <body>
     <header>Compiss</header>
     <div class="compass-container">
+        <div id="labels-container">
+            <div class="label north">N</div>
+            <div class="label south">S</div>
+            <div class="label west">W</div>
+            <div class="label east">E</div>
+        </div>
         <img id="compass" src="{{ url_for('static', filename='compass.png') }}" alt="Compass">
-        <div class="label north">N</div>
-        <div class="label south">S</div>
-        <div class="label west">W</div>
-        <div class="label east">E</div>
     </div>
     <p id="info">Waiting for location...</p>
     <script>
+        // Rotate labels based on device orientation (true north)
+        function handleOrientation(event) {
+            let heading = event.absolute && event.alpha !== null ? event.alpha : event.webkitCompassHeading || 0;
+            // Negative to keep labels fixed to true north
+            document.getElementById('labels-container').style.transform = `rotate(${-heading}deg)`;
+        }
+        if (window.DeviceOrientationEvent) {
+            window.addEventListener('deviceorientationabsolute', handleOrientation, true);
+            // Fallback for browsers that only provide non-absolute
+            window.addEventListener('deviceorientation', handleOrientation, true);
+        }
+
+        // Geolocation and compass bearing to nearest
         if (navigator.geolocation) {
             navigator.geolocation.watchPosition(
                 function(pos) {
@@ -111,7 +134,7 @@ HTML = '''
             document.getElementById('info').innerText = 'Geolocation is not supported.';
         }
     </script>
-    <footer>Compiss brought to you by Dariel Cruz Rodriguez for Polaris <a href="scavhunt.uchicago.edu">Scav 2025</a>!</footer>
+    <footer>Compiss brought to you by Dariel Cruz Rodriguez for Polaris <a href="https://scavhunt.uchicago.edu">Scav 2025</a>!</footer>
 </body>
 </html>
 '''
