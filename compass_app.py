@@ -52,6 +52,8 @@ HTML = '''
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Compiss</title>
     <link href="https://fonts.cdnfonts.com/css/comic-sans-ms" rel="stylesheet">
+    <link rel="icon" type="image/png" href="static/compass.png">
+    <link rel="apple-touch-icon" href="static/icon.png">
     <style>
         body { font-family: 'Comic Sans MS', cursive, sans-serif; padding: 2rem; text-align: center; }
         header { font-size: 2.5rem; margin-bottom: 1rem; }
