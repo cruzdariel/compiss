@@ -148,7 +148,10 @@ HTML = '''
             document.getElementById('info').innerText = 'Geolocation not supported';
         }
     </script>
-    <footer>Compiss brought to you by Dariel Cruz Rodriguez for Polaris <a href="https://scavhunt.uchicago.edu">Scav 2025</a>!</footer>
+    <footer>Compiss brought to you by Dariel Cruz Rodriguez for Polaris (Campus North)'s <a href="https://scavhunt.uchicago.edu">Scav 2025</a> team!<br>
+    <br>
+    <strong><a href="https://docs.google.com/forms/d/e/1FAIpQLSccbYZvgiRWmq6cPRH_esZXO414OSe3R9UPOKjttVofQTfU-Q/viewform?usp=dialog">Submit your bathroom locations</a></strong>    
+    </footer>
 </body>
 </html>
 '''
