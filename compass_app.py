@@ -54,6 +54,12 @@ HTML = '''
     <link href="https://fonts.cdnfonts.com/css/comic-sans-ms" rel="stylesheet">
     <link rel="icon" type="image/png" href="static/compass.png">
     <link rel="apple-touch-icon" href="static/icon.png">
+    <meta property="og:title" content="Compiss by Polaris">
+    <meta property="og:description" content="On campus and need to figure out where to take a piss? Don't miss out on the comPISS, available now. Scav Item 68 (2015)">
+    <meta property="og:image" content="https://i.imgur.com/HteHrLb.png">
+    <meta property="og:url" content="https://compiss.org">
+    <meta name="twitter:card" content="summary_large_image">
+
     <style>
         body { font-family: 'Comic Sans MS', cursive, sans-serif; padding: 2rem; text-align: center; }
         header { font-size: 2.5rem; margin-bottom: 1rem; }
