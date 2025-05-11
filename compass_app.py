@@ -43,7 +43,7 @@ def get_nearest(lat, lon):
         'bearing': bearing(lat, lon, nearest['latitude'], nearest['longitude'])
     }
 
-# --- HTML template ---
+# --- HTML template -
 HTML = '''
 <!DOCTYPE html>
 <html lang="en">
