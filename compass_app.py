@@ -185,6 +185,7 @@ def show_map():
         <meta charset="utf-8" />
         <title>Compiss - Bathroom Map</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="https://fonts.cdnfonts.com/css/comic-sans-ms" rel="stylesheet">
         <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
         <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
         <style>
