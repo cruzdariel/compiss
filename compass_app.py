@@ -63,7 +63,7 @@ HTML = '''
     <style>
         body { font-family: 'Comic Sans MS', cursive, sans-serif; padding: 2rem; text-align: center; }
         header { font-size: 2.5rem; margin-bottom: 1rem; }
-        #enable-compass { margin-bottom: 1rem; }
+        #enable-compass, #toggle-compass { margin-bottom: 1rem; }
         .compass-container {
             position: relative; width: 300px; height: 300px;
             margin: 0 auto 1rem; border: 4px solid #333; border-radius: 50%; overflow: hidden;
@@ -88,6 +88,7 @@ HTML = '''
 <body>
     <header>Compiss</header>
     <button id="enable-compass">Enable Compass Orientation</button>
+    <button id="toggle-compass">Toggle Compass Arrow</button>
     <div class="compass-container">
         <div id="labels-container">
             <div class="label north">N</div>
@@ -102,6 +103,8 @@ HTML = '''
         let headingEnabled = false;
         let currentHeading = 0;
         let currentBearing = 0;
+        const compass1 = "{{ url_for('static', filename='compass.png') }}";
+        const compass2 = "{{ url_for('static', filename='compass2.png') }}";
 
         function updatePointer() {
             const compass = document.getElementById('compass');
@@ -136,6 +139,17 @@ HTML = '''
             window.addEventListener('deviceorientation', handleOrientation, true);
             enableBtn.style.display = 'none';
         }
+
+        // Toggle compass image
+        const toggleBtn = document.getElementById('toggle-compass');
+        toggleBtn.addEventListener('click', () => {
+            const compassImg = document.getElementById('compass');
+            if (compassImg.src.includes('compass.png') && !compassImg.src.includes('compass2.png')) {
+                compassImg.src = compass2;
+            } else {
+                compassImg.src = compass1;
+            }
+        });
 
         // Geolocation for nearest restroom
         if (navigator.geolocation) {
