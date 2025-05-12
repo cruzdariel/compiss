@@ -6,7 +6,7 @@ from flask import Flask, request, jsonify, render_template_string, url_for
 app = Flask(__name__, static_folder='static')
 # Load bathroom coordinates CSV
 # CSV must be in project root with headers like 'Bathroom Name', 'Latitude', 'Longitude'.
-df = pd.read_csv('Bathrooms - Sheet1.csv')
+df = pd.read_csv('bathrooms.csv')
 # Normalize column names
 df.rename(columns=lambda x: x.strip().lower().replace(' ', '_'), inplace=True)
 # Convert latitude/longitude to numeric and drop invalid rows
@@ -156,9 +156,9 @@ HTML = '''
             document.getElementById('info').innerText = 'Geolocation not supported';
         }
     </script>
-    <footer>Compiss brought to you by Dariel Cruz Rodriguez for Polaris (Campus North)'s <a href="https://scavhunt.uchicago.edu">Scav 2025</a> team!<br>
-    <br>
-    <strong><a href="https://docs.google.com/forms/d/e/1FAIpQLSccbYZvgiRWmq6cPRH_esZXO414OSe3R9UPOKjttVofQTfU-Q/viewform?usp=dialog">Submit your bathroom locations</a></strong>    
+    <footer><p>Compiss brought to you by <a href="https://dariel.us">Dariel Cruz Rodriguez</a> for Polaris (Campus North)'s <a href="https://scavhunt.uchicago.edu">Scav 2025</a> team!</p><br>
+    <strong><p><a href="https://docs.google.com/forms/d/e/1FAIpQLSccbYZvgiRWmq6cPRH_esZXO414OSe3R9UPOKjttVofQTfU-Q/viewform?usp=dialog">Submit your bathroom locations</a></p></strong>
+    <strong><p><a href="/map">View current bathroom locations</a></p></strong>
     </footer>
 </body>
 </html>
@@ -175,5 +175,71 @@ def update():
     result = get_nearest(payload['lat'], payload['lon'])
     return jsonify(result)
 
+@app.route('/map')
+def show_map():
+    markers = df.to_dict(orient='records')
+    html_map = """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Compiss - Bathroom Map</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+        <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+        <style>
+            body { font-family: 'Comic Sans MS', cursive, sans-serif; padding: 2rem; text-align: center; }
+            header { font-size: 2.5rem; margin-bottom: 1rem; }
+            #enable-compass { margin-bottom: 1rem; }
+            .compass-container {
+                position: relative; width: 300px; height: 300px;
+                margin: 0 auto 1rem; border: 4px solid #333; border-radius: 50%; overflow: hidden;
+            }
+            #labels-container {
+                position: absolute; width: 100%; height: 100%;
+                top:0; left:0; transform-origin:50% 50%; transition: transform 0.5s ease;
+                pointer-events: none;
+            }
+            .label { position: absolute; font-size: 1.5rem; font-weight: bold; color:#333; }
+            .north { top: 1rem; left: 50%; transform: translateX(-50%); }
+            .south { bottom: 1rem; left: 50%; transform: translateX(-50%); }
+            .west  { left: 1rem; top: 50%; transform: translateY(-50%); }
+            .east  { right: 1rem; top: 50%; transform: translateY(-50%); }
+            #compass {
+                width: 80%; height: 80%; position: absolute; top:10%; left:10%;
+                transform-origin:50% 50%; transition: transform 0.5s ease;
+            }
+            footer { margin-top: 1.5rem; font-size: 0.9rem; }
+        </style>
+    </head>
+    <body>
+        <header>Compiss</header>
+        <div id="map" style="width: 100%; height: 600px;"></div>
+        <script>
+            var map = L.map('map').setView([0, 0], 2);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: ''
+            }).addTo(map);
+
+            var markers = {{ markers | tojson }};
+            var leafletMarkers = [];
+            markers.forEach(function(marker) {
+                var name = marker.bathroom_name || marker.name || 'Unknown';
+                var leafletMarker = L.marker([marker.latitude, marker.longitude])
+                                        .bindPopup(name)
+                                        .addTo(map);
+                leafletMarkers.push(leafletMarker);
+            });
+
+            if (leafletMarkers.length > 0) {
+                var group = new L.featureGroup(leafletMarkers);
+                map.fitBounds(group.getBounds().pad(0.5));
+            }
+        </script>
+        <p><a href="/">Go back</a></p>
+    </body>
+    </html>
+    """
+    return render_template_string(html_map, markers=markers)
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080, debug=True)
